@@ -19,7 +19,7 @@
                 </div>
                 <div class ="form-group">
                     {!! Form::label('password','Password') !!}
-                    {!! Form::password('password',old('password'),['class' => 'form-control']) !!}
+                    {!! Form::password('password',['class' => 'form-control']) !!}
                 </div>
                 <div class ="form-group">
                     {!! Form::label('password_confirmation','Confirmation') !!}
