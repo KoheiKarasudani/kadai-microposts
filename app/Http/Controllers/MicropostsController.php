@@ -20,7 +20,7 @@ class MicropostsController extends Controller
                 'microposts' => $microposts,
             ];
         }
-
+        //dd($microposts);
         // Welcomeビューでそれらを表示
         return view('welcome', $data);
     }

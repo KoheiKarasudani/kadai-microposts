@@ -70,6 +70,10 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'user_follow', 'follow_id', 'user_id')->withTimestamps();
     }
     
+    public function favorites(){
+        return $this ->belongsToMany(Micropost::class, 'favorites', 'user_id', 'micropost_id')->withTimestamps();
+    }
+    
     /**
      * $userIdで指定されたユーザをフォローする。
      *
@@ -129,14 +133,6 @@ class User extends Authenticatable
     }
     
     /**
-     * このユーザに関係するモデルの件数をロードする。
-     */
-    public function loadRelationshipCounts()
-    {
-        $this->loadCount(['microposts', 'followings', 'followers']);
-    }
-    
-    /**
      * このユーザとフォロー中ユーザの投稿に絞り込む。
      */
     public function feed_microposts()
@@ -149,6 +145,76 @@ class User extends Authenticatable
         return Micropost::whereIn('user_id', $userIds);
     }
     
+    
+    
+    
+    /**
+     * $micropostIdで指定されたmicropostをfavoする。
+     *
+     * @param  int  $micropostId
+     * @return bool
+     */
+    public function favorite($micropostId)
+    {
+        // すでにfavoしているかの確認
+        $exist = $this->is_favorite($micropostId);
+        // favoが自分自身かどうかの確認
+        //$its_me = $this->id == $micropostId;
+
+        if ($exist) {
+            // すでにfavoしていれば何もしない
+            return false;
+        } else {
+            // 未favoであればfavoする
+            $this->favorites()->attach($micropostId);
+            return true;
+        }
+    }
+
+    /**
+     * $userIdで指定されたmicropostをunfavoする。
+     *
+     * @param  int  $micropostId
+     * @return bool
+     */
+    public function unfavorite($micropostId)
+    {
+        // すでにfavoしているかの確認
+        $exist = $this->is_favorite($micropostId);
+        // favoが自分自身かどうかの確認
+        //$its_me = $this->id == $micropostId;
+
+        if ($exist) {
+            // すでにfavoしていればを外す
+            $this->favorites()->detach($micropostId);
+            return true;
+        } else {
+            // 未favoであれば何もしない
+            return false;
+        }
+    }
+
+    /**
+     * 指定された micropostをこのユーザfavoしているかを調べる。favo中ならtrueを返す。
+     *
+     * @param  int  $micropostId
+     * @return bool
+     */
+    public function is_favorite($micropostId)
+    {
+        // フォロー中ユーザの中に $userIdのものが存在するか
+        return $this->favorites()->where('micropost_id', $micropostId)->exists();
+    }
+    
+    
+    
+    /**
+     * このユーザに関係するモデルの件数をロードする。
+     */
+    public function loadRelationshipCounts()
+    {
+        $this->loadCount(['microposts', 'followings', 'followers', 'favorites']);
+    }
     
     
 }

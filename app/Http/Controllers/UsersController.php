@@ -85,4 +85,32 @@ class UsersController extends Controller
         ]);
     }
     
+    public function favorites($id)
+    {
+        //$uid = \Auth::user()->id;
+        $user = User::findOrFail($id);
+        //dd($user);
+        // idの値でmicropostを検索して取得
+        //$micropost = \App\Micropost::where('user_id')->find($user->id);
+        //dd($user->id);
+        //$users = User::findOrFail($micropost->user_id);
+        //$user = User::findOrFail($id);
+        //$user = User::where('user_id','=',$uid)->find();;
+
+        // 関係するモデルの件数をロード
+        $user->loadRelationshipCounts();
+        //dd($user);
+        
+        $favorites = $user->favorites()->paginate(10);
+        //dd($favorites);
+        //$users = User::where('id')->find($favorites->user_id); 
+        //$users = User::findOrFail($favorites->user_id);
+
+        // お気に入り一覧ビューでそれらを表示
+        return view('users.favorites', [
+            'user' =>$user,
+            'microposts' => $favorites,
+        ]);
+    }
+    
 }
